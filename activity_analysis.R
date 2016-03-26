@@ -1,44 +1,21 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
-
 
 ## 1. Loading and preprocessing the data
-```{r, echo=TRUE}
 activity <- read.csv("activity.csv", header = TRUE, na.strings = "NA", stringsAsFactors = FALSE)
 activity$date <- as.Date(activity$date, "%Y-%m-%d")
-```
 
-## Histogram of the total number of steps taken each day
-```{r, echo=TRUE}
+## 2. What is mean total number of steps taken per day?
 stepsperday <- tapply(activity$steps, activity$date, sum, na.rm = TRUE)
 hist(stepsperday, xlab = "Steps per day", ylab = "Count", main = "Histogram of steps per day", col = "blue")
-```
-
-## Mean and median number of steps taken each day
-```{r, echo=TRUE}
 mean(stepsperday)
 median(stepsperday)
-```
 
-## Time series plot of the average number of steps taken
-```{r, echo=TRUE}
+## 3. What is the average daily activity pattern?
 avgPerInt <- tapply(activity$steps, activity$interval, mean, na.rm = TRUE)
 plot(unique(activity$interval), avgPerInt, type = "l", xlab = "Interval", ylab = "Average number of steps", main = "Average Daily Activity Pattern")
-```
-
-## The 5-minute interval that, on average, contains the maximum number of steps
-```{r, echo=TRUE}
 maxAvgInt <- activity$interval[which.max(avgPerInt)]
 maxAvgInt
-```
 
-## Code to describe and show a strategy for imputing missing data
-## Assign mean of the interval for the missing values
-```{r, echo=TRUE}
+## 4. Impute missing values by assigning the mean steps of the interval
 na_count <- sum(is.na(activity$steps))
 len <- length(activity$steps)
 activity_new <- activity
@@ -50,24 +27,21 @@ for(i in 1:len) {
                 activity_new$steps[i] <- avgPerInt[c]
         }
 }
-```
 
-## Histogram of the total number of steps taken each day after missing values are ## imputed
-```{r, echo=TRUE}
+## Create new histogram for total steps per day with missing values imputed
 spd2 <- tapply(activity_new$steps, activity_new$date, sum)
 hist(spd2, xlab = "Steps per day", ylab = "Count", main = "Histogram of steps per day", col = "green")
 mean(spd2)
 median(spd2)
-```
 
-## Panel plot comparing the average number of steps taken per 5-minute interval across weekdays and weekends
-```{r, echo=TRUE}
+## 5. Are there differences in activity patterns between weekdays and weekends?
 wd <- weekdays(activity_new$date)
 wd_factor <- wd
 wd_factor <- gsub("Saturday|Sunday", "weekend", wd_factor)
 wd_factor <- gsub(".*day", "weekday", wd_factor)
 activity_new$dayOfWeek <- as.factor(wd_factor)
 
+## Plot the weekday-weekend two-panel graph
 library(ggplot2)
 
 wday <- activity_new[activity_new$dayOfWeek == "weekday", ]
@@ -82,5 +56,3 @@ weInt <- data.frame(interval = names(we_avg), avg_steps = we_avg, dayOfWeek = re
 intAvg <- rbind(wdInt, weInt)
 
 qplot(as.integer(interval), avg_steps, data = intAvg, facets = dayOfWeek~., geom="line", xlab = "Interval", ylab = "Average number of steps")
-
-```
