@@ -50,9 +50,9 @@ wend <- activity_new[activity_new$dayOfWeek == "weekend", ]
 wd_avg <- tapply(wday$steps, wday$interval, mean)
 we_avg <- tapply(wend$steps, wend$interval, mean)
 
-wdInt <- data.frame(interval = names(wd_avg), avg_steps = wd_avg, dayOfWeek = rep("weekday", length(wd_avg)))
-weInt <- data.frame(interval = names(we_avg), avg_steps = we_avg, dayOfWeek = rep("weekend", length(we_avg)))
+wdInt <- data.frame(interval = unique(wday$interval), avg_steps = wd_avg, dayOfWeek = rep("weekday", length(wd_avg)))
+weInt <- data.frame(interval = unique(wend$interval), avg_steps = we_avg, dayOfWeek = rep("weekend", length(we_avg)))
 
 intAvg <- rbind(wdInt, weInt)
 
-qplot(as.integer(interval), avg_steps, data = intAvg, facets = dayOfWeek~., geom="line", xlab = "Interval", ylab = "Average number of steps")
+qplot(interval, avg_steps, data = intAvg, geom="line", xlab = "Interval", ylab = "Average number of steps") + facet_wrap(~dayOfWeek, ncol=1)
